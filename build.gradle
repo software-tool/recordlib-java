@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+}
+
+group 'io.recordlib'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.json/json
+    implementation 'org.json:json:20201115'
+
+    // https://mvnrepository.com/artifact/org.jdom/jdom2
+    implementation 'org.jdom:jdom2:2.0.6.1'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+// Optional: Defined a semicolon-separated list of destination directories to copy the jar file to
+def copyDestinations = project.findProperty('copyDestinations')
+if (copyDestinations != null && !copyDestinations.toString().isEmpty()) {
+    def copyDestinationsArr = copyDestinations.split(";")
+    task copyJarToDestinations {
+        doLast {
+            def sourceFile = file('build/libs/recordlib-1.0.jar')
+            copyDestinationsArr.each { dest ->
+                copy {
+                    from sourceFile
+                    into dest
+                }
+
+                project.logger.lifecycle('Copy: ' + sourceFile + " > " + dest)
+            }
+        }
+    }
+} else {
+    // Empty Task
+    task copyJarToDestinations {
+    }
+}
+
+jar {
+    finalizedBy copyJarToDestinations
+}
+
+test {
+    useJUnitPlatform()
+}
